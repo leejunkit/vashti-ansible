@@ -1,0 +1,28 @@
+---
+- name: Install git
+  apt: name=git update_cache=yes state=latest
+  sudo: yes
+
+- name: Create the /var/app/store directory
+  file: dest=/var/app/store state=directory owner=www-data group=www-data mode=0700
+  sudo: yes
+
+- name: Clone git repository
+  git: dest=/var/app/store repo=https://github.com/leejunkit/vashti
+  sudo: yes
+  sudo_user: www-data
+
+- name: Run composer install
+  composer:
+    command: "install"
+    no_dev: yes
+    working_dir: /var/app/store
+  sudo: yes
+  sudo_user: www-data
+     
+- name: Run php artisan optimize
+  shell: php artisan optimize
+  args:
+    chdir: /var/app/store/
+  sudo: yes
+  sudo_user: www-data  

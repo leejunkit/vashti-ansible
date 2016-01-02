@@ -1,0 +1,8 @@
+---
+- hosts: webservers
+  sudo: true
+  tasks:
+    - name: Remove nginx
+      apt: name=nginx state=absent update_cache=yes
+    - name: Remove nginx-common
+      apt: name=nginx-common state=absent

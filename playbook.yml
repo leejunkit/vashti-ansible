@@ -1,0 +1,37 @@
+---
+- hosts: webservers
+  vars: 
+    php_app_name: "Laravel 5"
+  roles:
+    - role: php-fpm
+      sudo: yes
+    - role: composer
+      sudo: yes
+      composer_keep_updated: yes
+    - role: nginx
+      sudo: yes
+      nginx_official_repo: true
+      nginx_http_params:
+        - access_log syslog:server=unix:/dev/log,facility=local7,tag=nginx,severity=info
+        - error_log syslog:server=unix:/dev/log,facility=local7,tag=nginx,severity=error
+      nginx_sites:
+        store:
+          - server_name store.rsvp.vodka
+          - root /var/app/store/public
+          - index index.php
+          - location / { try_files $uri $uri/ /index.php$query_string; }
+          - 'location ~ \.php$ {
+            fastcgi_split_path_info ^(.+\.php)(/.+)$;
+            fastcgi_pass unix:/var/run/php5-fpm.sock;
+            fastcgi_index index.php;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_intercept_errors off;
+            fastcgi_buffer_size 16k;
+            fastcgi_buffers 4 16k; }'
+
+      nginx_configs:
+        proxy:
+          - proxy_set_header X-Real-IP  $remote_addr
+          - proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for 
+    - role: webapp

@@ -1,0 +1,8 @@
+[webservers]
+dev-web[1:2]
+
+[workers]
+dev-jumpbox1
+
+[cron]
+dev-jumpbox1
